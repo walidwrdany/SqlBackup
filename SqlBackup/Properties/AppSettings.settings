@@ -20,5 +20,8 @@
     <Setting Name="CompressBackup" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="ConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">data source=.;initial catalog=master;integrated security=True;MultipleActiveResultSets=True;</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

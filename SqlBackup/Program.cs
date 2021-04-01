@@ -8,7 +8,6 @@ namespace SqlBackup
 {
     class Program
     {
-        IDictionary<string, object> keyValuePairs = new Dictionary<string, object>();
 
         static void Main(string[] args)
         {
@@ -18,7 +17,7 @@ namespace SqlBackup
                 ? AppDomain.CurrentDomain.BaseDirectory
                 : BackupFolderFullPath;
 
-            string connectionString = "data source=.;initial catalog=IR-NE-Prod;integrated security=True;MultipleActiveResultSets=True;";
+            string connectionString = Properties.AppSettings.Default.ConnectionString;
 
             BackupService backupService = new BackupService(connectionString, backupFolderFullPath);
             backupService.BackupAllUserDatabases();
