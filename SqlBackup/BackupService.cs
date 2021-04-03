@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace SqlBackup
         {
             Parallel.ForEach(GetAllUserDatabases(), databaseName =>
             {
-                BackupDatabase(databaseName, Properties.AppSettings.Default.DeleteOlderBackups);
+                BackupDatabase(databaseName, Properties.AppSettings.Default.CompressBackup);
             });
         }
 
@@ -34,7 +35,7 @@ namespace SqlBackup
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                var query = String.Format(Properties.AppSettings.Default.SQLBackupCommand, databaseName, filePath);
+                var query = string.Format(Properties.AppSettings.Default.SQLBackupCommand, databaseName, filePath);
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -52,6 +53,32 @@ namespace SqlBackup
         private void CompressBackup(string filePath)
         {
             Console.WriteLine(filePath);
+
+            FileInfo fileInfo = new FileInfo(filePath);
+
+            try
+            {
+                string sourceName = fileInfo.FullName;
+                string targetName = Path.Combine(fileInfo.DirectoryName, fileInfo.Name.Replace(".bak", ".7z"));
+
+                Process process = Process.Start(
+                    new ProcessStartInfo
+                    {
+                        FileName = @"C:\Program Files\7-Zip\7zG.exe",
+                        Arguments = "a -t7z -mx9 -aoa \"" + targetName + "\" \"" + sourceName + "\"",
+                        WindowStyle = ProcessWindowStyle.Hidden
+                    }
+                );
+                process.WaitForExit();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                fileInfo.Delete();
+            }
         }
 
         private IEnumerable<string> GetAllUserDatabases()
@@ -96,14 +123,12 @@ namespace SqlBackup
             {
                 // delete older backups for saving disk space
                 if (Properties.AppSettings.Default.DeleteOlderBackups)
-                {
                     Parallel.ForEach(directoryInfo.GetFiles()
-                                .Where(fileInfo => DateTime.Now > fileInfo.CreationTime.AddDays(7)),
-                                fileInfo =>
-                                {
-                                    fileInfo.Delete();
-                                });
-                }
+                                    .Where(fileInfo => DateTime.Now > fileInfo.CreationTime.AddDays(7)),
+                                    fileInfo =>
+                                    {
+                                        fileInfo.Delete();
+                                    });
             }
 
             return Path.Combine(fullPath, filename);
