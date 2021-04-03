@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SqlBackup
@@ -58,16 +56,14 @@ namespace SqlBackup
 
         private IEnumerable<string> GetAllUserDatabases()
         {
-            var databases = new List<String>();
+            var databases = new List<string>();
 
             DataTable databasesTable;
 
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-
                 databasesTable = connection.GetSchema("Databases");
-
                 connection.Close();
             }
 
