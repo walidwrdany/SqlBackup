@@ -102,7 +102,7 @@ namespace SqlBackup
             var backupFileName = $"{folderPath}\\{databaseName}_{Time:yyyyMMddHHmmss}.bak";
 
             // Perform the backup
-            var query = "BACKUP DATABASE [" + databaseName + "] TO DISK='" + backupFileName + "' WITH INIT";
+            var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{backupFileName}' WITH INIT";
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
@@ -113,7 +113,7 @@ namespace SqlBackup
                 }
             }
 
-            Logger.LogInformation("Backup of database '" + databaseName + "' completed successfully.");
+            Logger.LogInformation($"Backup of database '{databaseName}' completed successfully.");
         }
     }
 }
