@@ -52,7 +52,7 @@ namespace SqlBackup
                     }
                 }
 
-                if (Convert.ToBoolean(AppSettings.Default.CompressBackup)) Archive();
+                if (AppSettings.Default.CompressBackup) Archive();
 
             }
             catch (Exception ex)
