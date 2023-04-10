@@ -2,26 +2,17 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SqlBackup.Properties" GeneratedClassName="AppSettings">
   <Profiles />
   <Settings>
-    <Setting Name="SQLBackupCommand" Type="System.String" Scope="User">
-      <Value Profile="(Default)">BACKUP DATABASE [{0}] TO DISK='{1}'</Value>
-    </Setting>
-    <Setting Name="BackupFileFormmat" Type="System.String" Scope="User">
-      <Value Profile="(Default)">{0}_db_{1}</Value>
-    </Setting>
-    <Setting Name="BackupFileDateFormmat" Type="System.String" Scope="User">
-      <Value Profile="(Default)">yyyyMMdd_HHmmss</Value>
-    </Setting>
-    <Setting Name="BackupFolderFullPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="DeleteOlderBackups" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+    <Setting Name="BackupFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\NewSQLBackUps</Value>
     </Setting>
     <Setting Name="CompressBackup" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="ConnectionString" Type="System.String" Scope="User">
       <Value Profile="(Default)">data source=.;initial catalog=master;integrated security=True;MultipleActiveResultSets=True;</Value>
+    </Setting>
+    <Setting Name="SqlCommand" Type="System.String" Scope="User">
+      <Value Profile="(Default)">name = 'Infinity'</Value>
     </Setting>
   </Settings>
 </SettingsFile>

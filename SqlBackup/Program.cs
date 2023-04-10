@@ -1,46 +1,125 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using SqlBackup.Properties;
+using System;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SqlBackup
 {
-    class Program
+    internal class Program
     {
+        private static readonly DateTime Time = DateTime.Now;
 
-        static void Main(string[] args)
+        private static readonly string FolderPath = Path.Combine(AppSettings.Default.BackupFolder, $"SQLBackup{Time:yyyyMMddHHmmss}");
+
+        private static readonly string ConnectionString = AppSettings.Default.ConnectionString;
+
+
+        private static void Main(string[] args)
         {
-            string BackupFolderFullPath = Properties.AppSettings.Default.BackupFolderFullPath;
-            string backupFolderFullPath =
-              string.IsNullOrEmpty(BackupFolderFullPath)
-                ? AppDomain.CurrentDomain.BaseDirectory
-                : BackupFolderFullPath;
-
-            string connectionString = Properties.AppSettings.Default.ConnectionString;
-
-            ParallelOptions options = new ParallelOptions()
+            try
             {
-                TaskScheduler = TaskScheduler.Default
-            };
-
-            Action[] actions = new Action[] {
-                delegate()
+                using (var connection = new SqlConnection(ConnectionString))
                 {
-                    Console.WriteLine("Backup All User Databases Started...");
+                    connection.Open();
 
-                    BackupService backupService = new BackupService(connectionString, backupFolderFullPath);
-                    backupService.BackupAllUserDatabases();
+                    // Get the list of databases on the server
+                    var query = @"
+                            SELECT db.name
+                            FROM sys.databases AS db
+                            WHERE 1 = 1
+                                  AND db.name NOT IN ( 'master', 'model', 'msdb', 'tempdb' )
+                                  AND db.state = 0
+                                  AND db.is_in_standby = 0";
 
-                    Console.WriteLine("Backup All User Databases Finished...");
-                },
-            };
+                    if (!string.IsNullOrEmpty(AppSettings.Default.SqlCommand))
+                        query += $" AND db.{AppSettings.Default.SqlCommand};";
+                    else
+                        query += ";";
 
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var databaseName = reader.GetString(0);
 
-            Parallel.Invoke(options, actions);
+                                // Backup the database
+                                BackupDatabase(databaseName, FolderPath);
+                            }
+                        }
+                    }
+                }
 
+                if (Convert.ToBoolean(AppSettings.Default.CompressBackup)) Archive();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("An error occurred while backing up databases: " + ex.Message);
+            }
+
+            Console.WriteLine("Press any key to exit...");
         }
 
+        private static void Archive()
+        {
+            foreach (var file in Directory.GetFiles(FolderPath, "*.bak", SearchOption.TopDirectoryOnly))
+            {
+                var targetName = $"{Path.GetDirectoryName(file)}\\{Path.GetFileNameWithoutExtension(file)}.7z";
+                using (var process = new Process())
+                {
+                    var info = new ProcessStartInfo
+                    {
+                        FileName = $"{AppDomain.CurrentDomain.BaseDirectory}\\7z.exe",
+
+                        /*
+                         Here is the breakdown of each option used:
+                            a: Short for "add", this option specifies that we want to create a new archive.
+                            -t7z: Specifies the type of archive we want to create, in this case a 7z archive.
+                            -mx9: Specifies the maximum compression level, which in this case is 9 (ultra).
+                            -aoa: Specifies that we want to overwrite any existing archive without prompting.
+                        */
+                        Arguments = $"a -t7z -mx9 -aoa \"{targetName}\" \"{file}\"",
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                    };
+
+                    Console.WriteLine($"{info.FileName} {info.Arguments}");
+
+                    process.StartInfo = info;
+                    process.Start();
+                    process.WaitForExit();
+                }
+
+                File.Delete(file);
+            }
+        }
+
+
+        private static void BackupDatabase(string databaseName, string folderPath)
+        {
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var backupFileName = $"{folderPath}\\{databaseName}_{Time:yyyyMMddHHmmss}.bak";
+
+            // Perform the backup
+            var query = "BACKUP DATABASE [" + databaseName + "] TO DISK='" + backupFileName + "' WITH INIT";
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+
+            Console.WriteLine("Backup of database '" + databaseName + "' completed successfully.");
+        }
     }
 }

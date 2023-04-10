@@ -12,7 +12,7 @@ namespace SqlBackup.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.5.0.0")]
     internal sealed partial class AppSettings : global::System.Configuration.ApplicationSettingsBase {
         
         private static AppSettings defaultInstance = ((AppSettings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new AppSettings())));
@@ -25,61 +25,13 @@ namespace SqlBackup.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("BACKUP DATABASE [{0}] TO DISK=\'{1}\'")]
-        public string SQLBackupCommand {
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\NewSQLBackUps")]
+        public string BackupFolder {
             get {
-                return ((string)(this["SQLBackupCommand"]));
+                return ((string)(this["BackupFolder"]));
             }
             set {
-                this["SQLBackupCommand"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("{0}_db_{1}")]
-        public string BackupFileFormmat {
-            get {
-                return ((string)(this["BackupFileFormmat"]));
-            }
-            set {
-                this["BackupFileFormmat"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("yyyyMMdd_HHmmss")]
-        public string BackupFileDateFormmat {
-            get {
-                return ((string)(this["BackupFileDateFormmat"]));
-            }
-            set {
-                this["BackupFileDateFormmat"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string BackupFolderFullPath {
-            get {
-                return ((string)(this["BackupFolderFullPath"]));
-            }
-            set {
-                this["BackupFolderFullPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool DeleteOlderBackups {
-            get {
-                return ((bool)(this["DeleteOlderBackups"]));
-            }
-            set {
-                this["DeleteOlderBackups"] = value;
+                this["BackupFolder"] = value;
             }
         }
         
@@ -105,6 +57,18 @@ namespace SqlBackup.Properties {
             }
             set {
                 this["ConnectionString"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("name = \'Infinity\'")]
+        public string SqlCommand {
+            get {
+                return ((string)(this["SqlCommand"]));
+            }
+            set {
+                this["SqlCommand"] = value;
             }
         }
     }
