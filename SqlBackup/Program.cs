@@ -3,7 +3,6 @@ using System;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 
 namespace SqlBackup
 {
@@ -58,10 +57,10 @@ namespace SqlBackup
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occurred while backing up databases: " + ex.Message);
+                Logger.LogError("An error occurred while backing up databases: " + ex.Message);
             }
 
-            Console.WriteLine("Press any key to exit...");
+            Logger.LogInformation("Press any key to exit...");
         }
 
         private static void Archive()
@@ -83,12 +82,7 @@ namespace SqlBackup
                             -aoa: Specifies that we want to overwrite any existing archive without prompting.
                         */
                         Arguments = $"a -t7z -mx9 -aoa \"{targetName}\" \"{file}\"",
-                        RedirectStandardInput = true,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
                     };
-
-                    Console.WriteLine($"{info.FileName} {info.Arguments}");
 
                     process.StartInfo = info;
                     process.Start();
@@ -119,7 +113,7 @@ namespace SqlBackup
                 }
             }
 
-            Console.WriteLine("Backup of database '" + databaseName + "' completed successfully.");
+            Logger.LogInformation("Backup of database '" + databaseName + "' completed successfully.");
         }
     }
 }
