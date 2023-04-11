@@ -56,10 +56,16 @@
     <ManifestKeyFile>SqlBackup_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -78,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="app.manifest" />
     <None Include="Properties\AppSettings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>AppSettings.Designer.cs</LastGenOutput>
