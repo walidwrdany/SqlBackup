@@ -8,9 +8,13 @@ namespace SqlBackup
 {
     internal class Program
     {
-        private static readonly DateTime Time = DateTime.Now;
+        private static readonly DateTime DateTime = DateTime.Now;
 
-        private static readonly string FolderPath = Path.Combine(AppSettings.Default.BackupFolder, $"SQLBackup{Time:yyyyMMddHHmmss}");
+        private static readonly string FolderPath = Path.Combine(
+            AppSettings.Default.BackupFolder,
+            $"SQLBackups{DateTime.Year}",
+            DateTime.ToString("MM"),
+            DateTime.ToString("dd"));
 
         private static readonly string ConnectionString = AppSettings.Default.ConnectionString;
 
@@ -32,10 +36,9 @@ namespace SqlBackup
                                   AND db.state = 0
                                   AND db.is_in_standby = 0";
 
-                    if (!string.IsNullOrEmpty(AppSettings.Default.SqlCommand))
-                        query += $" AND db.{AppSettings.Default.SqlCommand};";
-                    else
-                        query += ";";
+                    query += !string.IsNullOrEmpty(AppSettings.Default.SqlCommand)
+                        ? $" AND db.{AppSettings.Default.SqlCommand};"
+                        : ";";
 
                     using (var command = new SqlCommand(query, connection))
                     {
@@ -44,8 +47,6 @@ namespace SqlBackup
                             while (reader.Read())
                             {
                                 var databaseName = reader.GetString(0);
-
-                                // Backup the database
                                 BackupDatabase(databaseName, FolderPath);
                             }
                         }
@@ -82,6 +83,7 @@ namespace SqlBackup
                             -aoa: Specifies that we want to overwrite any existing archive without prompting.
                         */
                         Arguments = $"a -t7z -mx9 -aoa \"{targetName}\" \"{file}\"",
+                        WindowStyle = ProcessWindowStyle.Hidden
                     };
 
                     process.StartInfo = info;
@@ -90,6 +92,8 @@ namespace SqlBackup
                 }
 
                 File.Delete(file);
+
+                Logger.LogInformation($"Archive of file '{Path.GetFileNameWithoutExtension(file)}' completed successfully.");
             }
         }
 
@@ -99,18 +103,15 @@ namespace SqlBackup
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
 
-            var backupFileName = $"{folderPath}\\{databaseName}_{Time:yyyyMMddHHmmss}.bak";
+            var backupFileName = $"{folderPath}\\{databaseName}_{DateTime:yyyyMMddHHmmss}.bak";
 
             // Perform the backup
             var query = $"BACKUP DATABASE [{databaseName}] TO DISK='{backupFileName}' WITH INIT";
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-
                 using (var command = new SqlCommand(query, connection))
-                {
                     command.ExecuteNonQuery();
-                }
             }
 
             Logger.LogInformation($"Backup of database '{databaseName}' completed successfully.");
